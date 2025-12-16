@@ -2,6 +2,19 @@
 Python parser for Interactive Brokers Flex XML statements
 =========================================================
 
+.. note::
+
+   **This is a maintained fork of** `ibflex <https://github.com/csingley/ibflex>`_.
+
+   The original package on PyPI (v0.15) was last updated in January 2021 and crashes
+   on modern Interactive Brokers Flex reports. This fork publishes current updates to PyPI.
+
+   Install with: ``pip install ibflex2``
+
+   If the original package is updated on PyPI, this fork will be deprecated.
+
+----
+
 ``ibflex`` is a Python library for converting brokerage statement data in
 Interactive Brokers' Flex XML format into standard Python data structures,
 so it can be conveniently processed and analyzed with Python scripts.
@@ -31,7 +44,7 @@ Installation
 ============
 ::
 
-    pip install ibflex
+    pip install ibflex2
 
 
 Flex Parser
@@ -139,7 +152,7 @@ Resources
 * `capgains`_ - package that uses ibflex (inter alia) to calculate realized gains
 * `ib-flex-analyzer`_ - Analyze your Interactive Brokers Flex XML reports with pandas
 
-.. _Pull requests: https://github.com/csingley/ibflex/pull/new/master
+.. _Pull requests: https://github.com/robcohen/ibflex2/pull/new/master
 .. _requests: https://github.com/requests/requests
 .. _Interactive Brokers account management: https://gdcdyn.interactivebrokers.com/sso/Login
 .. _Activity Flex Query Reference: https://www.interactivebrokers.com/en/software/reportguide/reportguide.htm#reportguide/activity_flex_query_reference.htm
