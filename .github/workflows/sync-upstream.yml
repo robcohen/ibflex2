@@ -1,0 +1,80 @@
+name: Sync from upstream
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Nightly at midnight UTC
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: git remote add upstream https://github.com/csingley/ibflex.git || true
+
+      - name: Fetch upstream
+        run: git fetch upstream
+
+      - name: Check for upstream changes
+        id: check
+        run: |
+          UPSTREAM_COMMITS=$(git rev-list HEAD..upstream/master --count)
+          echo "upstream_commits=$UPSTREAM_COMMITS" >> $GITHUB_OUTPUT
+          if [ "$UPSTREAM_COMMITS" -gt 0 ]; then
+            echo "New commits from upstream: $UPSTREAM_COMMITS"
+            git log HEAD..upstream/master --oneline
+          else
+            echo "No new commits from upstream"
+          fi
+
+      - name: Create sync branch and PR
+        if: steps.check.outputs.upstream_commits > 0
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="sync-upstream-$(date +%Y%m%d)"
+          git checkout -b $BRANCH
+
+          # Merge upstream (may need manual conflict resolution)
+          if git merge upstream/master --no-edit; then
+            git push origin $BRANCH
+            gh pr create \
+              --title "Sync from upstream $(date +%Y-%m-%d)" \
+              --body "$(cat <<'EOF'
+          ## Upstream sync
+
+          This PR merges the latest changes from [csingley/ibflex](https://github.com/csingley/ibflex).
+
+          **Review carefully** - ensure ibflex2-specific changes (package name, README notice, etc.) are preserved.
+
+          If there are conflicts, resolve them locally:
+          ```bash
+          git fetch origin $BRANCH
+          git checkout $BRANCH
+          # resolve conflicts
+          git push origin $BRANCH
+          ```
+          EOF
+          )" \
+              --base master \
+              --head $BRANCH
+          else
+            echo "Merge conflicts detected - manual intervention required"
+            echo "To resolve locally:"
+            echo "  git fetch upstream"
+            echo "  git merge upstream/master"
+            echo "  # resolve conflicts"
+            echo "  git push origin master"
+            exit 1
+          fi
