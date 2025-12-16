@@ -40,13 +40,13 @@ setup(
     package_data={
         "ibflex": ["README.rst", "tests/*", "py.typed"],
     },
-    python_requires=">=3.7",
+    python_requires=">=3.9",
     license=ABOUT["__license__"],
     # Note: change 'master' to the tag name when releasing a new verion
     # download_url="{}/master".format(URL_BASE),
     download_url="{}/{}".format(URL_BASE, ABOUT["__version__"]),
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Intended Audience :: Financial and Insurance Industry",
         "Topic :: Software Development :: Libraries :: Python Modules",
@@ -60,9 +60,10 @@ setup(
         "Natural Language :: English",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
     keywords=["Interactive Brokers", "ibkr", "flex", "xml"],
     extras_require={
