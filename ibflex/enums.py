@@ -1,3 +1,4 @@
+# coding: utf-8
 """Enumerated values (Python enum.Enum subclasses) used to define ibflex.Types.
 
 Values are the text sent by IB in XML element attribute.
@@ -8,23 +9,23 @@ and EnumType (as Optional type) at the end of the file.
 """
 
 __all__ = [
-    "ENUMS",
-    "AssetClass",
-    "BuySell",
     "CashAction",
     "Code",
-    "DeliveredReceived",
-    "EnumType",
-    "InOut",
-    "LongShort",
-    "OpenClose",
-    "OptionAction",
-    "OrderType",
-    "PutCall",
-    "Reorg",
-    "ToFrom",
+    "AssetClass",
     "TradeType",
-    "TransferType"
+    "BuySell",
+    "OpenClose",
+    "OrderType",
+    "Reorg",
+    "OptionAction",
+    "LongShort",
+    "TransferType",
+    "ToFrom",
+    "InOut",
+    "DeliveredReceived",
+    "ENUMS",
+    "EnumType",
+    "PutCall"
 ]
 
 import enum
@@ -76,6 +77,7 @@ class Code(str, enum.Enum):
     INVESTOR = "INV"  # Investment Transfer from Investor
     MARGINLOW = "L"  # Ordered by IB (Margin Violation)
     WASHSALE = "LD"  # Adjusted by Loss Disallowed from Wash Sale
+    LIQUIDATION_FORCED = "LF"  # Forced Liquidation
     LIFO = "LI"  # Last In, First Out (LIFO) tax lot-matching method
     LTCG = "LT"  # Long-term P/L
     LOAN = "Lo"  # Direct Loan
@@ -104,6 +106,7 @@ class Code(str, enum.Enum):
     STCG = "ST"  # Short-term P/L
     STOCKYIELD = "SY"  # Positions that may be eligible for Stock Yield.
     TRANSFER = "T"  # Transfer
+    ADR = "ADR"  # American Depositary Receipt (ADR) creation or cancellation
 
 
 @enum.unique
@@ -169,6 +172,7 @@ class OrderType(str, enum.Enum):
     TRAIL = "TRAIL"
     REL = "REL"
     MIT = "MIT"
+    LIT = "LIT"
 
 @enum.unique
 class Reorg(str, enum.Enum):
@@ -235,6 +239,7 @@ class TransferType(str, enum.Enum):
     ACATS = "ACATS"
     ATON = "ATON"
     FOP = "FOP"
+    OTC = "OTC"
 
 
 @enum.unique

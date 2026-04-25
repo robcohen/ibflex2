@@ -1,14 +1,21 @@
-from . import Types, client, enums, parser, utils
+from . import enums
+from .enums import *
+from . import Types
+from .Types import *
+from . import parser
+from .parser import parse
+from .parser import enable_unknown_attribute_tolerance
+from .parser import disable_unknown_attribute_tolerance
+from . import utils
+from . import client
+
 from .__version__ import (
-    __author__,
-    __author_email__,
-    __copyright__,
-    __description__,
-    __license__,
     __title__,
+    __description__,
     __url__,
     __version__,
+    __author__,
+    __author_email__,
+    __license__,
+    __copyright__,
 )
-from .enums import *
-from .parser import parse
-from .Types import *
