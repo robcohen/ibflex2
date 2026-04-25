@@ -114,14 +114,15 @@ class FlexQueryResponse(FlexElement):
     Message: Optional[str] = None
 
     def __repr__(self):
-        return (
+        repr = (
             f"{type(self).__name__}("
             f"queryName={self.queryName!r}, "
             f"type={self.type!r}, "
-            f"len(FlexStatements)={len(self.FlexStatements)}, "
+            f"len(FlexStatements)={len(self.FlexStatements)}"
             f"Message={self.Message!r}"
             ")"
         )
+        return repr
 
 
 @dataclass(frozen=True)
@@ -191,18 +192,29 @@ class FlexStatement(FlexElement):
     DepositsOnHold: Tuple = ()  # TODO
 
     def __repr__(self):
-        parts = [
-            f"accountId={self.accountId!r}",
-            f"fromDate={self.fromDate!r}",
-            f"toDate={self.toDate!r}",
-            f"period={self.period!r}",
-            f"whenGenerated={self.whenGenerated!r}",
-        ]
-        for name in self.__annotations__:
-            value = getattr(self, name, None)
-            if isinstance(value, tuple) and value:
-                parts.append(f"len({name})={len(value)}")
-        return f"{type(self).__name__}({', '.join(parts)})"
+        repr = (
+            f"{type(self).__name__}("
+            f"accountId={self.accountId!r}, "
+            f"fromDate={self.fromDate!r}, "
+            f"toDate={self.toDate!r}, "
+            f"period={self.period!r}, "
+            f"whenGenerated={self.whenGenerated!r}"
+        )
+
+        sequences = (
+            (k, getattr(self, k))
+            for k, v in self.__annotations__.items()
+            if hasattr(v, "__origin__") and v.__origin__ is tuple
+        )
+        nonempty_sequences = ", ".join(
+            f"len({name})={len(value)}" for (name, value) in sequences if value
+        )
+        if nonempty_sequences:
+            repr += ", "
+            for seq in nonempty_sequences:
+                repr += seq
+        repr += ")"
+        return repr
 
 
 @dataclass(frozen=True)
@@ -465,6 +477,7 @@ class EquitySummaryByReportDateInBase(FlexElement):
     marginFinancingChargeAccrualsShort: Optional[decimal.Decimal] = None
     cryptoLong: Optional[decimal.Decimal] = None
     cryptoShort: Optional[decimal.Decimal] = None
+    liteSurchargeAccruals: Optional[decimal.Decimal] = None
 
 
 @dataclass(frozen=True)
@@ -695,6 +708,8 @@ class CashReportCurrency(FlexElement):
     salesTaxYTD: Optional[decimal.Decimal] = None
     salesTaxPaxos: Optional[decimal.Decimal] = None
     otherIncome: Optional[decimal.Decimal] = None
+    otherIncomeMTD: Optional[decimal.Decimal] = None
+    otherIncomeYTD: Optional[decimal.Decimal] = None
     otherIncomeSec: Optional[decimal.Decimal] = None
     otherIncomeCom: Optional[decimal.Decimal] = None
     otherFeesMTD: Optional[decimal.Decimal] = None
@@ -1130,7 +1145,7 @@ class Trade(FlexElement):
     subCategory: Optional[str] = None
     issuerCountryCode: Optional[str] = None
     rtn: Optional[str] = None
-    initialInvestment: Optional[decimal.Decimal] = None
+    initialInvestment: Optional[bool] = None
     positionActionID: Optional[str] = None
 
 
@@ -1283,7 +1298,7 @@ class Lot(FlexElement):
     issuerCountryCode: Optional[str] = None
     relatedTradeID: Optional[str] = None
     rtn: Optional[str] = None
-    initialInvestment: Optional[decimal.Decimal] = None
+    initialInvestment: Optional[bool] = None
     positionActionID: Optional[str] = None
 
 
@@ -1373,6 +1388,9 @@ class SymbolSummary(FlexElement):
     tradeID: Optional[str] = None
     orderID: Optional[decimal.Decimal] = None
     execID: Optional[str] = None
+    ibExecID: Optional[str] = None
+    extExecID: Optional[str] = None
+    exchOrderId: Optional[str] = None
     brokerageOrderID: Optional[str] = None
     orderReference: Optional[str] = None
     volatilityOrderLink: Optional[str] = None
@@ -1380,12 +1398,19 @@ class SymbolSummary(FlexElement):
     origTradePrice: Optional[decimal.Decimal] = None
     origTradeDate: Optional[datetime.date] = None
     origTradeID: Optional[str] = None
+    transactionID: Optional[str] = None
     #  Despite the name, `orderTime` actually contains date/time data.
     orderTime: Optional[datetime.datetime] = None
+    openDateTime: Optional[datetime.datetime] = None
+    holdingPeriodDateTime: Optional[datetime.datetime] = None
     dateTime: Optional[datetime.datetime] = None
     reportDate: Optional[datetime.date] = None
     settleDate: Optional[datetime.date] = None
+    settleDateTarget: Optional[datetime.date] = None        # expected date of ownership transfer
+    taxes: Optional[decimal.Decimal] = None
     tradeDate: Optional[datetime.date] = None
+    tradePrice: Optional[decimal.Decimal] = None
+    tradeMoney: Optional[decimal.Decimal] = None            # TradeMoney = Proceeds + Fees + Commissions
     exchange: Optional[str] = None
     buySell: Optional[enums.BuySell] = None
     quantity: Optional[decimal.Decimal] = None
@@ -1422,29 +1447,20 @@ class SymbolSummary(FlexElement):
     commodityType: Optional[str] = None
     cost: Optional[decimal.Decimal] = None
     deliveryType: Optional[str] = None
-    exchOrderId: Optional[str] = None
-    extExecID: Optional[str] = None
     fifoPnlRealized: Optional[decimal.Decimal] = None
     fineness: Optional[decimal.Decimal] = None
-    holdingPeriodDateTime: Optional[datetime.datetime] = None
     ibCommission: Optional[decimal.Decimal] = None
     ibCommissionCurrency: Optional[str] = None
-    ibExecID: Optional[str] = None
     ibOrderID: Optional[str] = None
-    initialInvestment: Optional[decimal.Decimal] = None
+    initialInvestment: Optional[bool] = None
     mtmPnl: Optional[decimal.Decimal] = None
     netCash: Optional[decimal.Decimal] = None
+    netCashInBase: Optional[decimal.Decimal] = None
     notes: Optional[str] = None
     openCloseIndicator: Optional[enums.OpenClose] = None
-    openDateTime: Optional[datetime.datetime] = None
     origOrderID: Optional[str] = None
     rtn: Optional[str] = None
     serialNumber: Optional[str] = None
-    settleDateTarget: Optional[datetime.date] = None
-    taxes: Optional[decimal.Decimal] = None
-    tradeMoney: Optional[decimal.Decimal] = None
-    tradePrice: Optional[decimal.Decimal] = None
-    transactionID: Optional[str] = None
     weight: Optional[str] = None
     whenRealized: Optional[datetime.datetime] = None
     whenReopened: Optional[datetime.datetime] = None
@@ -1556,7 +1572,7 @@ class AssetSummary(FlexElement):
     origTransactionID: Optional[str] = None
     relatedTransactionID: Optional[str] = None
     rtn: Optional[str] = None
-    initialInvestment: Optional[decimal.Decimal] = None
+    initialInvestment: Optional[bool] = None
     positionActionID: Optional[str] = None
 
 
@@ -1660,7 +1676,7 @@ class Order(FlexElement):
     origTransactionID: Optional[str] = None
     relatedTransactionID: Optional[str] = None
     rtn: Optional[str] = None
-    initialInvestment: Optional[decimal.Decimal] = None
+    initialInvestment: Optional[bool] = None
     serialNumber: Optional[str] = None
     deliveryType: Optional[str] = None
     commodityType: Optional[str] = None
@@ -1819,7 +1835,7 @@ class OptionEAE(FlexElement):
     origTransactionID: Optional[str] = None
     relatedTransactionID: Optional[str] = None
     rtn: Optional[str] = None
-    initialInvestment: Optional[decimal.Decimal] = None
+    initialInvestment: Optional[bool] = None
     serialNumber: Optional[str] = None
     deliveryType: Optional[str] = None
     commodityType: Optional[str] = None
@@ -2145,7 +2161,12 @@ class Transfer(FlexElement):
     commodityType: Optional[str] = None
     fineness: Optional[decimal.Decimal] = None
     weight: Optional[str] = None
-
+    figi: Optional[str] = None
+    settleDate: Optional[datetime.date] = None
+    issuerCountryCode: Optional[str] = None
+    levelOfDetail: Optional[str] = None
+    positionInstructionID: Optional[str] = None
+    positionInstructionSetID: Optional[str] = None
 
 @dataclass(frozen=True)
 class UnsettledTransfer(FlexElement):
@@ -2268,6 +2289,11 @@ class CorporateAction(FlexElement):
     commodityType: Optional[str] = None
     fineness: Optional[decimal.Decimal] = None
     weight: Optional[str] = None
+    figi: Optional[str] = None
+    issuerCountryCode: Optional[str] = None
+    costBasis: Optional[decimal.Decimal] = None
+
+
 
 
 @dataclass(frozen=True)
@@ -2503,7 +2529,7 @@ class SecurityInfo(FlexElement):
     origTransactionID: Optional[str] = None
     relatedTransactionID: Optional[str] = None
     rtn: Optional[str] = None
-    initialInvestment: Optional[decimal.Decimal] = None
+    initialInvestment: Optional[bool] = None
     serialNumber: Optional[str] = None
     deliveryType: Optional[str] = None
     commodityType: Optional[str] = None
