@@ -2,22 +2,38 @@
 Python parser for Interactive Brokers Flex XML statements
 =========================================================
 
+.. warning::
+
+   **This project is archived and unmaintained.** It is here for reference and
+   for the git history of its bug fixes and test suite.
+
+   Upstream `csingley/ibflex <https://github.com/csingley/ibflex>`_ resumed
+   releases in 2026 (current: ``ibflex`` 1.2) and now covers most of what this
+   fork was created for. **Use upstream instead:**
+
+   .. code::
+
+       pip uninstall ibflex2
+       pip install ibflex
+
+   Do not install both: this package and upstream both provide the ``ibflex``
+   module, so the second install silently overwrites the first.
+
 .. note::
 
-   **This is a maintained fork of** `csingley/ibflex <https://github.com/csingley/ibflex>`_.
-
-   The original package on PyPI (v0.15) was last updated in January 2021 and
-   crashes on modern Interactive Brokers Flex reports. ``ibflex2`` ships
-   continuously updated dataclasses, an opt-in mode for IBKR's frequent
-   schema additions, and security and quality hardening.
-
-   Install with ``pip install ibflex2``.
+   ``ibflex2`` 1.0.0 was published to PyPI in December 2025 and is the last
+   release. It carries a known bug: the Flex Web Service client retries
+   forever when IBKR returns a non-2xx HTTP response (see `CHANGELOG.md
+   <CHANGELOG.md>`_ for the one-line cause and the fix). If you are pinned to
+   ``ibflex2``, use upstream's client, or download statements with your own
+   HTTP code and pass the bytes to ``ibflex.parser.parse``.
 
 ----
 
-``ibflex2`` converts Interactive Brokers Flex XML brokerage statement data
-into typed Python objects, so it can be processed and analyzed in scripts,
-notebooks, and pipelines.
+``ibflex2`` converted Interactive Brokers Flex XML brokerage statement data
+into typed Python objects, so it could be processed and analyzed in scripts,
+notebooks, and pipelines. The sections below describe what the code in this
+repository does, not a package you should adopt today.
 
 *This module is for reading IBKR brokerage reports — it does not place
 trades.*

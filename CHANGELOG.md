@@ -1,5 +1,45 @@
 # Changelog
 
+## Archived — 2026-11-15
+
+**This project is archived. No further development, releases, or issue triage
+happens here.** Use upstream `csingley/ibflex <https://github.com/csingley/ibflex>`_
+1.2 or newer instead:
+
+    pip uninstall ibflex2
+    pip install ibflex
+
+Both packages provide the `ibflex` module, so they cannot be installed side by
+side. ``ibflex2`` 1.0.0 (2025-12-16) is the final release.
+
+Why: upstream resumed releases (1.1, 1.2 in 2026) and now ships the fixes this
+fork was created for — Flex Web Service endpoint updates, `period`/`fd`/`td`
+and configurable `timeout` on `client.download`, `OrderType.SNAPMID`,
+`TradeType.EXCHANGE BUY/SELL`, `SalesTax.figi`, `MTDYTDPerformanceSummaryUnderlying.subCategory`,
+and tolerant parsing of unknown attributes/sections. Maintaining a second copy
+of `Types.py` (~2,900 lines, 42 commits behind upstream at archival time) was
+not earning its keep: ~200 downloads/month versus ~18,000 for upstream.
+
+Still worth upstreaming rather than losing (open these against
+`csingley/ibflex` if you care):
+
+- `defusedxml` instead of stdlib `xml.etree.ElementTree` (XXE / billion-laughs
+  hardening).
+- The test corpus in `tests/` (fixtures, snapshots, hypothesis property tests
+  for the date/time matrix) and the coverage/pip-audit CI gates.
+
+Known bug in the last release (1.0.0), and the fix if you are stuck on it:
+
+- `client.submit_request` loops forever on any non-2xx HTTP response, because
+  `requests.Response.__bool__` is `response.ok`, so `while (not response)`
+  never exits and the retry counter only advances on `Timeout`. Replace the
+  loop with `while True:` and count every attempt, or use upstream's
+  `client.download`.
+
+The `Unreleased` notes below were never released; they were superseded by
+upstream 1.2. The one entry still absent upstream is `TransactionTaxDetail`
+field coverage — see PR #10 and `pr-10-zepaz-taxdetail`.
+
 ## Unreleased
 
 ### Breaking changes
