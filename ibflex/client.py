@@ -4,6 +4,7 @@ Download Flex queries without logging into Account Management web page.
 https://www.interactivebrokers.com/en/software/am/am/reports/flex_web_service_version_3.htm
 """
 # stdlib imports
+import logging
 import time
 from dataclasses import dataclass
 from datetime import datetime
@@ -164,31 +165,33 @@ def request_statement(
 def submit_request(url: str, token: str, query: str) -> "requests.Response":
     """Post a query to an API access point, along with an authentication token.
 
-    Retry with a progressive timeout window.
+    Retries timeouts with a progressive timeout window (5 s, 10 s, 15 s).
+
+    Any HTTP response is returned to the caller for interpretation, including
+    4xx/5xx. Do NOT test the truthiness of a `requests.Response`: it is falsy
+    whenever `ok` is False, so `while not response` never terminates on an
+    error response.
     """
     MAX_REQUESTS = 3
     TIMEOUT_INCREMENT = 5
 
     requests = _requests()
+    logger = logging.getLogger(__name__)
 
-    response = None
-    req_count = 1
-    while (not response):
+    attempt = 0
+    while True:
+        attempt += 1
         try:
-            response = requests.get(
+            return requests.get(
                 url,
                 params={"v": "3", "t": token, "q": query},
                 headers={"user-agent": "Java"},
-                timeout=req_count * TIMEOUT_INCREMENT,
+                timeout=attempt * TIMEOUT_INCREMENT,
             )
         except requests.exceptions.Timeout:
-            if req_count >= MAX_REQUESTS:
+            if attempt >= MAX_REQUESTS:
                 raise
-            else:
-                print("Request Timeout, re-sending...")
-                req_count += 1
-
-    return response
+            logger.warning("Request timeout, re-sending...")
 
 
 def parse_stmt_response(

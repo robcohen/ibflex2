@@ -48,7 +48,7 @@
 
         packages.default = pkgs.python312Packages.buildPythonPackage {
           pname = "ibflex2";
-          version = "1.0.0";
+          version = "1.0.1";
           src = ./.;
           pyproject = true;
 

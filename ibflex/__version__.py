@@ -18,7 +18,7 @@ __description__ = (
 )
 __url__ = "https://github.com/robcohen/ibflex2"
 __upstream_url__ = "https://github.com/csingley/ibflex"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "Christopher Singley"
 __author_email__ = "csingley@gmail.com"
 __maintainer__ = "robcohen"

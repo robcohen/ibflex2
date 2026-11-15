@@ -10,7 +10,7 @@ happens here.** Use upstream `csingley/ibflex <https://github.com/csingley/ibfle
     pip install ibflex
 
 Both packages provide the `ibflex` module, so they cannot be installed side by
-side. ``ibflex2`` 1.0.0 (2025-12-16) is the final release.
+side. ``ibflex2`` 1.0.1 (2026-11-15) is the final release.
 
 Why: upstream resumed releases (1.1, 1.2 in 2026) and now ships the fixes this
 fork was created for — Flex Web Service endpoint updates, `period`/`fd`/`td`
@@ -28,17 +28,37 @@ Still worth upstreaming rather than losing (open these against
 - The test corpus in `tests/` (fixtures, snapshots, hypothesis property tests
   for the date/time matrix) and the coverage/pip-audit CI gates.
 
-Known bug in the last release (1.0.0), and the fix if you are stuck on it:
+Known bug in 1.0.0 — fixed in 1.0.1, kept here for anyone still pinned to it:
 
 - `client.submit_request` loops forever on any non-2xx HTTP response, because
   `requests.Response.__bool__` is `response.ok`, so `while (not response)`
   never exits and the retry counter only advances on `Timeout`. Replace the
-  loop with `while True:` and count every attempt, or use upstream's
-  `client.download`.
+  loop with `while True:` and count every attempt, pin `ibflex2==1.0.1`, or use
+  upstream's `client.download`.
 
 The `Unreleased` notes below were never released; they were superseded by
 upstream 1.2. The one entry still absent upstream is `TransactionTaxDetail`
 field coverage — see PR #10 and `pr-10-zepaz-taxdetail`.
+
+## 1.0.1 — 2026-11-15
+
+Final release. Docs plus one client fix, so that the last artefact on PyPI is
+not the one with the hang in it.
+
+### Fixed
+
+- `client.submit_request` no longer retries forever when IBKR returns a
+  non-2xx HTTP response. `requests.Response.__bool__` is `self.ok`, so the old
+  `while (not response)` loop never terminated on a 4xx/5xx and the retry
+  counter only advanced on `Timeout`. It now counts every attempt (3 attempts,
+  5 s / 10 s / 15 s timeouts) and returns any HTTP response to the caller.
+  This affected 1.0.0 only.
+- The timeout re-send message goes to `logging` instead of `stdout`.
+
+### Docs
+
+- README and this changelog record that the project is archived and point at
+  upstream `ibflex` 1.2.
 
 ## Unreleased
 

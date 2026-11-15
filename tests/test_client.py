@@ -92,6 +92,43 @@ class SubmitRequestTestCase(unittest.TestCase):
         )
 
 
+class SubmitRequestErrorResponseTestCase(unittest.TestCase):
+    """A 4xx/5xx response must be returned to the caller, not retried forever.
+
+    `requests.Response.__bool__` is `self.ok`, so the original
+    `while (not response)` loop never exited on an error response.
+    """
+
+    class NotOkResponse:
+        """Minimal stand-in for requests.Response, incl. its __bool__."""
+
+        ok = False
+        status_code = 500
+        content = b"<html>500</html>"
+
+        def __bool__(self):
+            return self.ok
+
+    @patch("requests.get")
+    def test_error_response_returned_once(self, mock_requests_get):
+        response = self.NotOkResponse()
+        mock_requests_get.return_value = response
+
+        output = client.submit_request(
+            url=client.REQUEST_URL,
+            token="DEADBEEF",
+            query="0987654321",
+        )
+
+        self.assertIs(output, response)
+        mock_requests_get.assert_called_once_with(
+            client.REQUEST_URL,
+            params={"v": "3", "t": "DEADBEEF", "q": "0987654321"},
+            headers={"user-agent": "Java"},
+            timeout=5,
+        )
+
+
 @patch("requests.get", side_effect=mock_response)
 class RequestStatementTestCase(unittest.TestCase):
     def test_request_statement(self, mock_requests_get):

@@ -21,12 +21,10 @@ Python parser for Interactive Brokers Flex XML statements
 
 .. note::
 
-   ``ibflex2`` 1.0.0 was published to PyPI in December 2025 and is the last
-   release. It carries a known bug: the Flex Web Service client retries
-   forever when IBKR returns a non-2xx HTTP response (see `CHANGELOG.md
-   <CHANGELOG.md>`_ for the one-line cause and the fix). If you are pinned to
-   ``ibflex2``, use upstream's client, or download statements with your own
-   HTTP code and pass the bytes to ``ibflex.parser.parse``.
+   ``ibflex2`` 1.0.1 (2026-11-15) is the final release. ``ibflex2`` 1.0.0 had a
+   client bug: the Flex Web Service client retried forever when IBKR returned a
+   non-2xx HTTP response. That is fixed in 1.0.1 — pin ``ibflex2==1.0.1`` if
+   you must stay on this package, or use upstream's ``client.download``.
 
 ----
 
